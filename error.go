@@ -24,13 +24,17 @@ func Error(err error) *wrapError {
 	}
 }
 
-// Error returns current error string.
+// Error returns a chained error string.
 // It's implemented error interface.
 func (e *wrapError) Error() string {
 	if e.current == nil {
 		return ""
 	}
-	return e.current.Error()
+	msg := e.current.Error()
+	if e.child != nil {
+		msg += " " + e.child.Error()
+	}
+	return msg
 }
 
 // Wrap wraps an error.
