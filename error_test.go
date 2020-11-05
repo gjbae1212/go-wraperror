@@ -37,25 +37,6 @@ func TestError(t *testing.T) {
 	}
 }
 
-func TestWrapError_Error(t *testing.T) {
-	assert := assert.New(t)
-
-	emptyErr := Error(nil)
-	existErr := Error(fmt.Errorf("[err] test"))
-
-	tests := map[string]struct {
-		err    *wrapError
-		output string
-	}{
-		"success-1": {err: emptyErr, output: ""},
-		"success-2": {err: existErr, output: "[err] test"},
-	}
-
-	for _, t := range tests {
-		assert.Equal(t.output, t.err.Error())
-	}
-}
-
 func TestWrapError_Wrap(t *testing.T) {
 	assert := assert.New(t)
 
@@ -78,6 +59,56 @@ func TestWrapError_Wrap(t *testing.T) {
 		wrapErr := t.err.Wrap(t.input)
 		assert.Equal(t.output.current, wrapErr.current)
 		assert.Equal(t.output.child, wrapErr.child)
+	}
+}
+
+func TestWrapError_Flatten(t *testing.T) {
+	assert := assert.New(t)
+
+	testDefaultErr := fmt.Errorf("[err] default test")
+	testExistOnlyErr := fmt.Errorf("[err] sample test ")
+
+	chainExistErr := Error(testExistOnlyErr)
+	chainEmptyErr := Error(nil)
+
+	chainEmptyErr = chainEmptyErr.Wrap(testDefaultErr)
+	chainExistErr = chainExistErr.Wrap(testDefaultErr)
+	for i := 0; i < 100; i++ {
+		chainEmptyErr = chainEmptyErr.Wrap(fmt.Errorf("[err] test %d", i))
+		chainExistErr = chainExistErr.Wrap(fmt.Errorf("[err] test %d", i))
+	}
+	mixErr := chainExistErr.Wrap(chainEmptyErr)
+
+	tests := map[string]struct {
+		err   *wrapError
+		count int
+	}{
+		"chain empty": {err: chainEmptyErr, count: 101},
+		"chain exist": {err: chainExistErr, count: 102},
+		"mix":         {err: mixErr, count: 203},
+	}
+
+	for _, t := range tests {
+		assert.Len(t.err.Flatten(), t.count)
+	}
+}
+
+func TestWrapError_Error(t *testing.T) {
+	assert := assert.New(t)
+
+	emptyErr := Error(nil)
+	existErr := Error(fmt.Errorf("[err] test"))
+
+	tests := map[string]struct {
+		err    *wrapError
+		output string
+	}{
+		"success-1": {err: emptyErr, output: ""},
+		"success-2": {err: existErr, output: "[err] test"},
+	}
+
+	for _, t := range tests {
+		assert.Equal(t.output, t.err.Error())
 	}
 }
 
