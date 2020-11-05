@@ -74,7 +74,7 @@ func TestWrapError_Flatten(t *testing.T) {
 	chainEmptyErr = chainEmptyErr.Wrap(testDefaultErr)
 	chainExistErr = chainExistErr.Wrap(testDefaultErr)
 	for i := 0; i < 100; i++ {
-		chainEmptyErr = chainEmptyErr.Wrap(fmt.Errorf("[err] test %d", i))
+		chainEmptyErr = chainEmptyErr.Wrap(fmt.Errorf("[err] test %d %w", i, &os.PathError{Err: fmt.Errorf("%d", i)}))
 		chainExistErr = chainExistErr.Wrap(fmt.Errorf("[err] test %d", i))
 	}
 	mixErr := chainExistErr.Wrap(chainEmptyErr)
@@ -83,9 +83,9 @@ func TestWrapError_Flatten(t *testing.T) {
 		err   *wrapError
 		count int
 	}{
-		"chain empty": {err: chainEmptyErr, count: 101},
+		"chain empty": {err: chainEmptyErr, count: 301}, // 1 + 100 + Os.PathError(100) + Os.PathError.Err(100)
 		"chain exist": {err: chainExistErr, count: 102},
-		"mix":         {err: mixErr, count: 203},
+		"mix":         {err: mixErr, count: 403},
 	}
 
 	for _, t := range tests {

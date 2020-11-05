@@ -38,6 +38,9 @@ func (e *wrapError) Flatten() []error {
 			errs = append(errs, e.current.(*wrapError).Flatten()...)
 		} else {
 			errs = append(errs, e.current)
+			if unwrap := errors.Unwrap(e.current); unwrap != nil {
+				errs = append(errs, Error(unwrap).Flatten()...)
+			}
 		}
 	}
 
@@ -46,6 +49,9 @@ func (e *wrapError) Flatten() []error {
 			errs = append(errs, e.child.(*wrapError).Flatten()...)
 		} else {
 			errs = append(errs, e.child)
+			if unwrap := errors.Unwrap(e.child); unwrap != nil {
+				errs = append(errs, Error(unwrap).Flatten()...)
+			}
 		}
 	}
 	return errs
