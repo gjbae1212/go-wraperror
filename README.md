@@ -22,7 +22,7 @@ func main() {
   sample2 := &os.PathError{}
   sample3 := &os.SyscallError{}
   
-  wrap := wraperror.Error(sample)
+  wrap := wraperror.Error(sample1)
   wrap = wrap.Error(sample2)
   
   // true
