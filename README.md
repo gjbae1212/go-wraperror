@@ -11,29 +11,29 @@ WrapError is custom error struct implemented error interface and supporting erro
 ```go
 package main
 import (
-    "os"
-   "errors"
-   wraperror "github.com/gjbae1212/go-wraperror"
+	"os"
+	"errors"
+	wraperror "github.com/gjbae1212/go-wraperror"
 )
 
 
 func main() {
-  sample1 := errors.New("[err] tests")
-  sample2 := &os.PathError{}
-  sample3 := &os.SyscallError{}
-  
-  wrap := wraperror.Error(sample1)
-  wrap = wrap.Error(sample2)
-  
-  // true
-  errors.Is(wrap, sample1)
-  errors.As(wrap, &sample1)
-  // true
-  errors.Is(wrap, sample2)
-  errors.As(wrap, &sample2)
-  // false
-  errors.Is(wrap, sample3)
-  errors.As(wrap, &sample3)
+	sample1 := errors.New("[err] tests")
+	sample2 := &os.PathError{}
+	sample3 := &os.SyscallError{}
+
+	wrap := wraperror.Error(sample1)
+	wrap = wrap.Wrap(sample2)
+
+	// true
+	errors.Is(wrap, sample1)
+	errors.As(wrap, &sample1)
+	// true
+	errors.Is(wrap, sample2)
+	errors.As(wrap, &sample2)
+	// false
+	errors.Is(wrap, sample3)
+	errors.As(wrap, &sample3)
 }
 ``` 
 
