@@ -61,7 +61,7 @@ func (e *WrapError) Error() string {
 	}
 	msg := e.current.Error()
 	if e.child != nil {
-		msg += " " + e.child.Error()
+		msg += ": " + e.child.Error()
 	}
 	return msg
 }

@@ -115,6 +115,7 @@ func TestWrapError_Error(t *testing.T) {
 
 	emptyErr := Error(nil)
 	existErr := Error(fmt.Errorf("[err] test"))
+	wrappedErr := Error(fmt.Errorf("foo")).Wrap(existErr)
 
 	tests := map[string]struct {
 		err    *WrapError
@@ -122,6 +123,7 @@ func TestWrapError_Error(t *testing.T) {
 	}{
 		"success-1": {err: emptyErr, output: ""},
 		"success-2": {err: existErr, output: "[err] test"},
+		"success-3": {err: wrappedErr, output: "[err] test: foo"},
 	}
 
 	for _, t := range tests {
